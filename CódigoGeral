@@ -1,1 +1,32 @@
+#define sensorUV PE_5
 
+int tempo = 10000, inicio;
+float UV, saidaUV, leituraUV;
+
+void setup() {
+  inicio = millis();
+  pinMode(sensorUV, INPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  //quando chegar o tempo entre medidas
+  if(millis() - inicio >= tempo){
+    //leitura sensor UV
+    leituraUV = analogRead(sensorUV);
+    
+    //transformando a leitura em unidades de medida mW/cm2
+    saidaUV = (leituraUV/4095)*3.3;
+    UV = (8.33*saidaUV)-8.33;
+
+    //enviando os dados para o MatLab via serial
+    //IMPORTANTE!! para comunicação com o matlab é CRUCIAL que o Serial esteja imprimindo apenas essas informações,
+    //caso usem o monitor serial para testar a logica do codigo, favor comentar/apagar esses testes antes de testar com o matlab 
+    Serial.print(0); //valor iluminancia
+    Serial.print(",");
+    Serial.println(UV); //valor UV
+
+    //reseta o tempo de espera
+    inicio = millis();
+  }
+}
