@@ -41,7 +41,7 @@ int tempo = 10000;
 float UV, saidaUV, leituraUV;
 float volts,amps,microamps,lux,leituraLux;
 unsigned long inicio;
-int angulo = 0;
+int anguloStep = 0, anguloServo = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -70,17 +70,27 @@ void leituraTecladoMatricial(){
     //Serial.println(leitura_teclas);
     switch (leitura_teclas) {
     case 'A':
-     break;
-    case 'B': 
+      if(anguloServo<90){
+        anguloServo+=5;
+      }
+      break;
+    case 'B':
+      if(anguloServo>0){
+        anguloServo-=5;
+      }
       break;
     case 'C':
-      motorPasso.step(5/0.175781); 
-      angulo+=5;
+      if(anguloStep<90){
+        motorPasso.step(5/0.175781); 
+        anguloStep+=5;
+      }
       //Serial.println(angulo);     
       break;
     case 'D':
-      motorPasso.step(-5/0.175781);
-      angulo-=5;
+      if(anguloStep>0){
+        motorPasso.step(-5/0.175781);
+        anguloStep-=5;
+      }
       //Serial.println(angulo);      
       break;
     case '1':
