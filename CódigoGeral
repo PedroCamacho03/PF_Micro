@@ -1,28 +1,127 @@
-#define sensorUV PE_5
+#include <Keypad.h>
+#include <LiquidCrystal.h>
+#include <Stepper.h>
 
-int tempo = 10000, inicio;
+#define IN1  PH_0
+#define IN2  PH_1
+#define IN3  PH_2
+#define IN4  PH_3
+
+#define RS PM_0
+#define RW PM_1
+#define EN PM_2
+#define D4 PK_4
+#define D5 PK_5
+#define D6 PK_6
+#define D7 PK_7
+
+#define sensorUV PE_5
+#define sensorLux PE_4
+
+LiquidCrystal lcd(RS, RW, EN, D4, D5, D6, D7);
+
+const int L0 = PL_0, L1 = PL_1, L2 = PL_2, L3 = PL_3, C0 = PM_4, C1 = PM_5, C2 = PM_6, C3 = PM_7; 
+const byte ROWS = 4; 
+const byte COLS = 4; 
+
+char hexaKeys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6', 'B'},
+  {'7','8','9', 'C'},
+  {'*','0','#', 'D'}
+};
+byte rowPins[ROWS] = {L0, L1, L2, L3}; 
+byte colPins[COLS] = {C0, C1, C2, C3}; 
+
+Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
+
+Stepper motorPasso(500, IN1, IN3, IN2, IN4);
+
+int tempo = 10000;
 float UV, saidaUV, leituraUV;
+float volts,amps,microamps,lux,leituraLux;
+unsigned long inicio;
+int angulo = 0;
 
 void setup() {
+  Serial.begin(9600);
+  Serial.println("Inicio Setup");
+  for(int i=0;i<=3; i++){
+    pinMode(rowPins[i], INPUT);
+    pinMode(colPins[i], INPUT);
+  }
+  lcd.begin(16, 2);
+  lcd.clear();
+  lcd.setCursor(0,0);
   inicio = millis();
   pinMode(sensorUV, INPUT);
-  Serial.begin(9600);
+  pinMode(sensorLux, INPUT);
+  motorPasso.setSpeed(60);
 }
 
 void loop() {
-  //quando chegar o tempo entre medidas
-  if(millis() - inicio >= tempo){
+  leituraTecladoMatricial();
+  leituraDosSensores();
+}
+
+void leituraTecladoMatricial(){
+  char leitura_teclas = customKeypad.getKey();
+  while (leitura_teclas != 0){
+    //Serial.println(leitura_teclas);
+    switch (leitura_teclas) {
+    case 'A':
+     break;
+    case 'B': 
+      break;
+    case 'C':
+      motorPasso.step(5/0.175781); 
+      angulo+=5;
+      //Serial.println(angulo);     
+      break;
+    case 'D':
+      motorPasso.step(-5/0.175781);
+      angulo-=5;
+      //Serial.println(angulo);      
+      break;
+    case '1':
+      tempo = 10000;      
+      break;
+    case '2':
+      tempo = 20000;
+      break;
+    case '3':
+      tempo = 30000;
+      break;
+    case '4':
+      tempo = 40000;
+      break;
+    default:
+      break;
+    }   
+    leitura_teclas = 0;
+  }
+}
+
+void leituraDosSensores(){
+   if(millis() - inicio >= tempo){
     //leitura sensor UV
     leituraUV = analogRead(sensorUV);
-    
+    //Serial.println(leituraUV);
     //transformando a leitura em unidades de medida mW/cm2
     saidaUV = (leituraUV/4095)*3.3;
     UV = (8.33*saidaUV)-8.33;
 
+    leituraLux = analogRead(sensorLux);
+    volts = (leituraLux/4095)*3.3;
+    amps = volts / 10000.0;
+    microamps = amps*1000000;
+    lux = microamps*2.0;
+    
+
     //enviando os dados para o MatLab via serial
     //IMPORTANTE!! para comunicação com o matlab é CRUCIAL que o Serial esteja imprimindo apenas essas informações,
     //caso usem o monitor serial para testar a logica do codigo, favor comentar/apagar esses testes antes de testar com o matlab 
-    Serial.print(0); //valor iluminancia
+    Serial.print(lux); //valor iluminancia
     Serial.print(",");
     Serial.println(UV); //valor UV
 
