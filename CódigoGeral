@@ -45,7 +45,7 @@ int angulo = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("Inicio Setup");
+  //Serial.println("Inicio Setup");
   for(int i=0;i<=3; i++){
     pinMode(rowPins[i], INPUT);
     pinMode(colPins[i], INPUT);
@@ -106,7 +106,6 @@ void leituraDosSensores(){
    if(millis() - inicio >= tempo){
     //leitura sensor UV
     leituraUV = analogRead(sensorUV);
-    //Serial.println(leituraUV);
     //transformando a leitura em unidades de medida mW/cm2
     saidaUV = (leituraUV/4095)*3.3;
     UV = (8.33*saidaUV)-8.33;
