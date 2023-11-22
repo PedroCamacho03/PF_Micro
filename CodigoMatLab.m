@@ -1,5 +1,9 @@
+clear;
+close all;
+clc;
+
 % Configura a porta serial
-s = serial('COM3', 'BaudRate', 9600); % Use a porta correta
+s = serial('COM3', 'BaudRate', 9600); % Abre a porta serial
 fopen(s);
 
 % Inicializa os vetores de dados e os gráficos
@@ -26,13 +30,14 @@ title('Gráfico em Tempo Real - Raios UV');
 axis([0 maxSamples 0 1023]);
 
 % Inicializa a tabela (vazia)
-tabelaDados = table('Size', [maxSamples, 2], 'VariableTypes', {'double', 'double'}, 'VariableNames', {'Iluminancia', 'UV'});
+tabelaDados = table('Size', [maxSamples, 2], 'VariableTypes', {'double', 'double'}, ...
+    'VariableNames', {'Iluminancia', 'UV'});
 
 % Loop para atualizar os gráficos e a tabela em tempo real
 idx = 1; % Índice para controlar a posição atual nos vetores de dados
 while ishandle(hIluminancia) && ishandle(hUV)
     % Lê os dados da porta serial
-    dados = str2double(strsplit(fgetl(s), ',')) % Assume que os dados são separados por vírgula
+    dados = str2double(strsplit(readline(s), ',')); % Assume que os dados são separados por vírgula
 
     % Atualiza os vetores de dados
     dataIluminancia(idx) = dados(1); % Valor de iluminância
@@ -45,12 +50,15 @@ while ishandle(hIluminancia) && ishandle(hUV)
 
     % Atualiza a tabela
     tabelaDados(idx, :) = {dados(1), dados(2)};
-    disp(tabelaDados);
+    uitable('Data', tabelaDados{:,:}, 'ColumnName', {'Iluminância', 'UV'}, ...
+        'Units', 'Normalized', 'Position',[0, 0, 1, 1]);
     
     % Atualiza o índice
     idx = idx + 1;
     if idx > maxSamples
         idx = 1; % Volta para o início quando o limite é atingido
+        dataUV = zeros(1, maxSamples); % Zera os gráficos
+        dataIluminancia = zeros(1, maxSamples);
     end
 end
 
