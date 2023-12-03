@@ -57,6 +57,13 @@ void setup() {
   lcd.begin(16, 2);
   lcd.clear();
   lcd.setCursor(0, 0);
+  lcd.print("SERVO: ");
+  lcd.setCursor(6,0);
+  lcd.print(anguloServo);
+  lcd.setCursor(0, 1);
+  lcd.print("STEP: ");
+  lcd.setCursor(5,1);
+  lcd.print(anguloStep);
   inicio = millis();
   pinMode(sensorUV, INPUT);
   pinMode(sensorLux, INPUT);
@@ -72,7 +79,6 @@ void loop() {
 void leituraTecladoMatricial() {
   char leitura_teclas = customKeypad.getKey();
   while (leitura_teclas != 0) {
-    //Serial.println(leitura_teclas);
     switch (leitura_teclas) {
       case 'A':
         if (anguloServo < 90) {
@@ -89,14 +95,12 @@ void leituraTecladoMatricial() {
           motorPasso.step(5 / 0.175781);
           anguloStep += 5;
         }
-        //Serial.println(angulo);
         break;
       case 'D':
         if (anguloStep > 0) {
           motorPasso.step(-5 / 0.175781);
           anguloStep -= 5;
         }
-        //Serial.println(angulo);
         break;
       case '1':
         tempo = 10000;
@@ -110,21 +114,26 @@ void leituraTecladoMatricial() {
       case '4':
         tempo = 40000;
         break;
+      case '5':
+        tempo = 50000;
+        break;
+      case '6':
+        tempo = 60000;
+        break;
       default:
         break;
     }
+    lcd.setCursor(0, 0);
+    lcd.print("SERVO: ");
+    lcd.setCursor(6,0);
+    lcd.print(anguloServo);
+    lcd.setCursor(0, 1);
+    lcd.print("STEP: ");
+    lcd.setCursor(5,1);
+    lcd.print(anguloStep);
     leitura_teclas = 0;
   }
-  lcd.setCursor(0, 0);
-  lcd.print("SERVO: ");
-  lcd.setCursor(6,0);
-  lcd.print(anguloServo);
-  lcd.setCursor(0, 1);
-  lcd.print("STEP: ");
-  lcd.setCursor(5,1);
-  lcd.print(anguloStep);
   //delay(1000);
-
   servo.write(anguloServo);
 }
 
