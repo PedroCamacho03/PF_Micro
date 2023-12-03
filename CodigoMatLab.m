@@ -12,22 +12,21 @@ dataIluminancia = zeros(1, maxSamples);
 dataUV = zeros(1, maxSamples);
 
 % Inicializa os gráficos
-figure;
+figure(1);
 
 subplot(2, 1, 1);
 hIluminancia = plot(dataIluminancia);
 xlabel('Amostras');
 ylabel('Iluminância');
 title('Gráfico em Tempo Real - Iluminância');
+axis([1 maxSamples 0 700]);
 
 subplot(2, 1, 2);
 hUV = plot(dataUV);
 xlabel('Amostras');
-ylabel('Raios UV');
+ylabel('Raios UV (mW/cm^2)');
 title('Gráfico em Tempo Real - Raios UV');
-
-% Configura os eixos dos gráficos
-axis([0 maxSamples 0 1023]);
+axis([1 maxSamples 0 20]);
 
 % Inicializa a tabela (vazia)
 tabelaDados = table('Size', [maxSamples, 2], 'VariableTypes', {'double', 'double'}, ...
@@ -37,7 +36,7 @@ tabelaDados = table('Size', [maxSamples, 2], 'VariableTypes', {'double', 'double
 idx = 1; % Índice para controlar a posição atual nos vetores de dados
 while ishandle(hIluminancia) && ishandle(hUV)
     % Lê os dados da porta serial
-    dados = str2double(strsplit(readline(s), ',')); % Assume que os dados são separados por vírgula
+    dados = str2double(strsplit(fgetl(s), ',')); % Assume que os dados são separados por vírgula
 
     % Atualiza os vetores de dados
     dataIluminancia(idx) = dados(1); % Valor de iluminância
@@ -50,8 +49,7 @@ while ishandle(hIluminancia) && ishandle(hUV)
 
     % Atualiza a tabela
     tabelaDados(idx, :) = {dados(1), dados(2)};
-    uitable('Data', tabelaDados{:,:}, 'ColumnName', {'Iluminância', 'UV'}, ...
-        'Units', 'Normalized', 'Position',[0, 0, 1, 1]);
+    disp(tabelaDados);
     
     % Atualiza o índice
     idx = idx + 1;
@@ -61,6 +59,10 @@ while ishandle(hIluminancia) && ishandle(hUV)
         dataIluminancia = zeros(1, maxSamples);
     end
 end
+
+figure(2);
+uitable('Data', tabelaDados{:,:}, 'ColumnName', {'Iluminância', 'UV'}, ...
+        'Units', 'Normalized', 'Position',[0, 0, 1, 1]);
 
 % Fecha a porta serial quando os gráficos são fechados
 fclose(s);
