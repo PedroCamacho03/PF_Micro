@@ -55,14 +55,12 @@ while ishandle(hIluminancia) && ishandle(hUV)
     idx = idx + 1;
     if idx > maxSamples
         idx = 1; % Volta para o início quando o limite é atingido
-        dataUV = zeros(1, maxSamples); % Zera os gráficos
+        dataUV = zeros(1, maxSamples); % Zera os gráficos e tabela
         dataIluminancia = zeros(1, maxSamples);
+        tabelaDados{:,1} = zeros(1, maxSamples).';
+        tabelaDados{:,2} = zeros(1, maxSamples).';
     end
 end
-
-figure(2);
-uitable('Data', tabelaDados{:,:}, 'ColumnName', {'Iluminância', 'UV'}, ...
-        'Units', 'Normalized', 'Position',[0, 0, 1, 1]);
 
 % Fecha a porta serial quando os gráficos são fechados
 fclose(s);
